@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -x
+
+## Get the CWD this script is run from
+#currWD=$(pwd)
+#target=/$(basename $currWD)
+#
+#docker run -t -i --rm -w $target \
+#  --network=host \
+#    --mount type=bind,source=$currWD,target=$target \
+
+docker run -t -i --rm pyncepbufr:latest
