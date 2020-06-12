@@ -1,0 +1,22 @@
+    HDF5                                                    BUFR
+<NA>                                                    SAID "SATELLITE IDENTIFIER" <1024, Cowboy World change to allow values > 1023>
+year, month, day, hour, minute, second                  YEAR, MNTH, DAYS, HOUR, MINU, SECO
+pixel latitude                                          CLATH "LATITUDE (HIGH ACCURACY)"
+pixel longitude                                         CLONH "LONGITUDE (HIGH ACCURACY)"
+chi                                                     CHSQ  "CHI-SQUARED", <table2, had to increase accuracy and range>
+water path sequence number                              COLN ("ILWPSEQ"2 replication, 0th row, in the given order) "COLUMN NUMBER" <1, 2>
+iwp, lwp                                                ILWP ("ILWPSEQ"2 replication, 1st row, in the given order) "ICE/LIQUID WATER PATH" <Had to increase value range, and accuracy>
+converge                                                CLAVR "Clouds from AVHRR cloud mask"
+zenith_angle                                            SAZA "SATELLITE ZENITH ANGLE" <Had to increase accuracy>
+<NA>                                                    BEARAZ "BEARING OR AZIMUTH" <25><Had to increase accuracy>
+<NA>                                                    SOZA "SOLAR ZENITH ANGLE", <25><Not in the Tempest-D data. Maybe it can be generated?>
+<NA>                                                    SOLAZI "SOLAR AZIMUTH", <25><Can't find it in the Tempest-D data. Maybe it can be generated?>
+scan_angle                                              SANG "SCAN ANGLE" <table 2, Cowboy World change to allow negative angles>
+scan angle index (any field array index, 0-159)         FOVN "FIELD OF VIEW NUMBER"
+scan line index (any field array index, 0-(>10000))     SLNM "SCAN LINE NUMBER", <Only needed for BUFR file verification. Had to increase range.>
+channel 1-5                                             CHNM ("BRIT"5 replication, 0th row, in the given order) "CHANNEL NUMBER", <1, 2, 3, 4, 5>
+Tb 89 GHz, Tb 165 GHz, Tb 176 GHz, 180, 182             TMBR ("BRIT"5 replication, 1st row, in the given order) "BRIGHTNESS TEMPERATURE (HIGH ACCURACY)" <Had to increase accuracy>
+
+BUFR master table legend:
+1) Standard Table B for Master Table 0 (WMO), Version 30 <This is the default unless otherwise specified>
+2) Local Table B for Master Table 0 (WMO), Originating Center 7 (NCEP), Version 1

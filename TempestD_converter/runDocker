@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#
+# Runs "docker-compose up" for the tempest_converter project.
+# Including dev as the first option will cause docker-compose.dev.yml to be
+# used.
+# Determines if "--build" needs to be added to it by comparing the mod times of
+# the files to be included in the image with the creation time of the image.
+# Note that the modification time comparison sometimes causes the build to
+# occur when it doesn't need to because "docker build ." does a diff on the
+# files to see if the files have actually changed. In this case docker see's to
+# it that the image does not get recreated.
+#
+
+#set -x
+
+# Find out if this is a development environment run
+if [[ ("$#" = 1 && "${1}" = 'dev') || $(uname -n) = alioth ]]; then
+    DEV='-f docker-compose.dev.yml'
+fi
+
+# See if any of the files included in the docker build have changed
+imCreated=$(docker inspect -f '{{ .Created }}' tempd-bufr-converter)
+imUtime=$(date -d $imCreated +%s)
+
+files=$(grep '^!' .dockerignore)
+files="$files !Dockerfile"
+for fname in $files; do
+    fileUtime=$(stat -c '%Y' ${fname:1})
+    if [[ $fileUtime > $imUtime ]]; then
+        BUILD=--build
+        break
+    fi
+done
+
+echo docker-compose ${DEV} up $BUILD
+docker-compose ${DEV} up $BUILD

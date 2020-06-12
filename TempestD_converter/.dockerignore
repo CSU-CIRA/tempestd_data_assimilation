@@ -1,0 +1,10 @@
+# Can't see how to ignore all subdirectories - ignore everything
+*
+
+# Except what we need
+!decode_tempest_for_QA.py
+!.dockerignore
+!multiproc_converter.py
+!README.md
+!tempest-D.table
+!tempest_h5_to_bufr.py

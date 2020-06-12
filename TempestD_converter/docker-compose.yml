@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  convert:
+    build: .
+    image: tempd-bufr-converter:latest
+    volumes:
+      - /mnt/ssdatenas/ssdate/tempestd_data/:/data
+    environment:
+      # The optional vars, set to their default values, are commented out
+      #- LOGLEVEL=INFO
+      - H5_DATA_DIR=/data/preprocessor_output/output
+      - H5_PROCESSED_DIR=/data/preprocessor_output/used
+      - H5_BAD_DIR=/data/preprocessor_output/failed
+      - BUFR_OUTPUT_DIR=/data/bufr_converter_output/output
+      #- SLEEP_SECONDS=60
+      #- CPU_FRACTION=.5
+      #- H5_VERSION_REGEX=(?P<version>\_v(\d|\.)*\d)

@@ -1,0 +1,38 @@
+#!/bin/bash
+# Dumps the datasets in an HDF5 file to individual dump files - one for each
+# dataset. The files have the names of the datasets except that any spaces are
+# replaced with underscores.
+# Argument:
+#   1: path of the HDF5 file
+#   2: directory to put the dataset dump files
+
+#set -x
+
+# Get the name of this script
+this=`basename $0`
+
+warning() {
+    echo $this: $* 1>&2
+}
+
+function join_by { local IFS="$1"; shift; echo "$*"; }
+
+h5path=$1
+dsFilesDir=$2
+
+regex='\"(.*)\"'
+
+h5dump --header $h5path | while read dsq ds; do
+    if [ $dsq = DATASET ]; then
+        if [[ $ds =~ $regex ]]; then
+            #echo ${BASH_REMATCH[1]} 
+            read -ra fn <<< "${BASH_REMATCH[1]}"
+            fname=$(join_by _ "${fn[@]}")
+            echo fname:   $fname
+            echo dataset: \"${BASH_REMATCH[1]}\"
+            h5dump --dataset="${BASH_REMATCH[1]}" $h5path > $dsFilesDir/$fname
+        else
+            warning "Regex: \"$regex\" did not match string: $ds"
+        fi
+    fi
+done
