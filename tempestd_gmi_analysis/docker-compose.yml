@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+    tempestd_gmi_postproc:
+        build: .
+        image: tempestd_gmi_postproc
+        container_name: tempestd_gmi_postproc
+        volumes:
+        - ./:/visualization_tools/src
+        - /mnt/ssdatenas/gmi_native:/mnt/ssdatenas/gmi_native
+        - /mnt/ssdatenas/crtm_output:/mnt/ssdatenas/crtm_output
+        - /mnt/ssdatenas/histogram_plots:/mnt/ssdatenas/histogram_plots
+        - /mnt/ssdatenas/diff_maps:/mnt/ssdatenas/diff_maps
+        - /mnt/ssdatenas/tempestd_gmi_global_diff_timeseries:/mnt/ssdatenas/tempestd_gmi_global_diff_timeseries
+        tty: true
+        network_mode: host
