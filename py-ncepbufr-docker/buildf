@@ -1,0 +1,6 @@
+#!/bin/bash
+# The argument is the program/source file name sans extension
+pname=${1}
+bufr_lib_dir=/root/py-ncepbufr-master/src
+set -x
+gfortran -o $pname.exe $pname.f90 -L$bufr_lib_dir -lbufr
