@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -x
+
+# Get the CWD this script is run from
+currWD=$(pwd)
+target=/$(basename $currWD)
+
+if [ -d '/mnt/ssdatenas/ssdate/tempestd_data' ]; then
+    nasmount="-v /mnt/ssdatenas/ssdate/tempestd_data:/td_data"
+fi
+
+# Define my custom user environment
+CUE="set -o vi; alias ll='ls -lF';"
+CUE="$CUE echo -e 'set ts=4\nset shiftwidth=4\nset expandtab\nset smarttab\n"
+CUE="${CUE}set nows\nset autoindent\nset textwidth=79\nset modeline\n"
+CUE="${CUE}set modelines=10\nset nojoinspaces' > /root/.exrc"
+export CUSTOM_USER_ENVIRONMENT="$CUE"
+
+docker run -t -i --rm -w $target \
+  --env "CUSTOM_USER_ENVIRONMENT" \
+  --network=host \
+  --mount type=bind,source=$currWD,target=$target $nasmount \
+  pyncepbufr:0.0.3
