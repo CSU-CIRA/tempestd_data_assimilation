@@ -1,0 +1,15 @@
+  
+  
+RECT_LAT_BEGIN: -89.91032, RECT_LON_BEGIN:    0.0
+RECT_DELTA_LAT: 0.234375, RECT_DELTA_LON: 0.234375
+  
+ Reading: GMI_lat.dat
+  
+ Reading: GMI_lon.dat
+ rect_lat_begin =   -89.91032    
+  rect_lat_end =    89.85531    
+ rect_lon_begin =   0.0000000E+00
+  rect_lon_end =    359.7656    
+  
+ Writing gmi_orbit_window.dat of size      4718592
+ RECT_NXP =         1536  RECT_NYP =          768

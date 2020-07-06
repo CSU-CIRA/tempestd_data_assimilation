@@ -1,0 +1,14 @@
+#
+### 15 January 2019
+#
+### Makefile to compile gfdl_diams.f90
+#
+gfdl_diams.out: gfdl_diams.o
+		ifort -assume byterecl -o gfdl_diams.out gfdl_diams.o
+gfdl_diams.o: gfdl_diams.f90
+	      ifort -c -assume byterecl gfdl_diams.f90
+clean:
+	rm -f *.o *.mod
+#
+### End of Makefile
+#

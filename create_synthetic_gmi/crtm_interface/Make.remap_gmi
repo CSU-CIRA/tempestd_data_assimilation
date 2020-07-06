@@ -1,0 +1,14 @@
+#
+### 31 December 2019
+#
+### Makefile to compile remap_gmi_to_fv3.f90
+#
+remap_gmi_to_fv3.out: remap_gmi_to_fv3.o
+		ifort -assume byterecl -o remap_gmi_to_fv3.out remap_gmi_to_fv3.o
+remap_gmi_to_fv3.o: remap_gmi_to_fv3.f90
+	      ifort -c -assume byterecl remap_gmi_to_fv3.f90
+clean:
+	rm -f *.o *.mod
+#
+### End of Makefile
+#

@@ -1,0 +1,19 @@
+NEMSIO_INC = /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/19.0.4.243/include/nemsio_v2.2.4 
+NEMSIO_LIB = /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/19.0.4.243/lib/libnemsio_v2.2.4.a
+BACIO_LIB4 = /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/19.0.4.243/lib/libbacio_v2.0.3_4.a 
+W3NCO_LIBd = /scratch2/NCEPDEV/nwprod/NCEPLIBS/compilers/intel/19.0.4.243/lib/libw3nco_v2.0.7_d.a 
+
+FCMP = ifort
+
+SHELL  =/bin/sh
+EXEC   =read_fv3gfs_atm_nemsio.out
+FOPTS  = -assume byterecl -O -FR -I$(NEMSIO_INC)
+LOPTS  = $(OPTS)
+LIBS   = $(NEMSIO_LIB) $(BACIO_LIB4) $(W3NCO_LIBd)
+OBJS = read_fv3gfs_atm_nemsio.o
+SRCS = read_fv3gfs_atm_nemsio.f
+# *************************************************************************
+all: $(OBJS)
+
+$(OBJS): $(SRCS)
+	$(FCMP)  $(FOPTS) $(LOPTS) $(SRCS) -o $(EXEC) $(LIBS)
