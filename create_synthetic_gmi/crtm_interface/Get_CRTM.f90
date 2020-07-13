@@ -32,11 +32,10 @@ IMPLICIT NONE
 !*** Parameters
 !
 CHARACTER(*), PARAMETER :: PROGRAM_NAME  = "Get_CRTM.f90"
-CHARACTER(*), PARAMETER :: PATH ="/scratch1/NESDIS/nesdis-rdo2/Heather.Cronk/control_dec2018/read_nemsio/control_dec2018/"
+CHARACTER(*), PARAMETER :: PATH = path to data
 !
-!*** Pick a version, then edit Makefile to set up the version you specified here; go on...
+!*** Path to crtm coefficient files
 !
-!CHARACTER(*), PARAMETER :: COEF_PATH = "/home/grasso/rtm/crtm_v2.2.3/Coefficient/"
 CHARACTER(*), PARAMETER :: COEF_PATH = "/scratch2/NCEPDEV/nwprod/NCEPLIBS/fix/crtm_v2.2.6/"
 !============================================================================
 ! 0. **** SOME SATELLITE PARAMETERS ****
@@ -58,23 +57,11 @@ INTEGER, PARAMETER          :: N_ABSORBERS  = 2
 INTEGER, PARAMETER          :: N_AEROSOLS   = 0
 INTEGER, PARAMETER          :: N_SENSORS    = 1
 !
-!CHARACTER(*), PARAMETER     :: SENSOR_TYPE = "geo" ! Geostationary
 CHARACTER(*), PARAMETER     :: SENSOR_TYPE = "leo" ! Low Earth Orbiting
 !
 CHARACTER(*), PARAMETER     :: PATH_LATLON = PATH 
 CHARACTER(*), PARAMETER     :: PATH_ANGLES = PATH
 !
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'ahi_himawari8'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'v.ahi_himawari8'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'imgr_g12'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'avhrr3_n18'/) !noaa-18
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'abi_gr'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'v.abi_gr'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'seviri_m10'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'v.seviri_m10'/)
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'tempest-D_cubesat'/) !Tempest-D
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'modis_aqua'/) ! Modis Aqua 
-!CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'v.modis_aqua'/) ! Modis Aqua reflective 
 CHARACTER(*), PARAMETER     :: Sensor_Id(N_SENSORS) = (/'gmi_gpm'/) 
 !
 !*** Declare some CRTM Structures
@@ -97,35 +84,7 @@ TYPE(CRTM_RTSolution_type), DIMENSION(:,:), ALLOCATABLE :: RTSolution
 !
 !*** Declare local parameters
 !
-!*** Begining with v2.1.3, use the satellite band number.
-!*** Thus for GOES-R ABI 10.7 is band=13. Previous crtm versions used band=7
-!
 INTEGER,  PARAMETER :: ICHA= 1            ! Number of channels to process
-!
-!INTEGER,  PARAMETER :: CHA= 1, CHB= 1    ! tempest-D 89  GHz Tbs (nominal) channel
-!INTEGER,  PARAMETER :: CHA= 2, CHB= 2    ! tempest-D 165 GHz Tbs
-!INTEGER,  PARAMETER :: CHA= 3, CHB= 3    ! tempest-D 176 GHz Tbs
-!INTEGER,  PARAMETER :: CHA= 4, CHB= 4    ! tempest-D 180 GHz Tbs
-!INTEGER,  PARAMETER :: CHA= 5, CHB= 5    ! tempest-D 182 GHz Tbs
-!
-!INTEGER,  PARAMETER :: CHA= 11, CHB= 11    ! HIMAWARI AHI  8.6 um
-!INTEGER,  PARAMETER :: CHA= 13, CHB= 13    ! HIMAWARI AHI 10.4 um
-!INTEGER,  PARAMETER :: CHA= 14, CHB= 14    ! HIMAWARI AHI 11.2 um
-!INTEGER,  PARAMETER :: CHA= 15, CHB= 15    ! HIMAWARI AHI 12.3 um
-!INTEGER,  PARAMETER :: CHA= 16, CHB= 16    ! HIMAWARI AHI 13.3 um
-!
-!INTEGER,  PARAMETER :: CHA= 4, CHB= 4      ! GOES-16 ABI 1.38 um
-!INTEGER,  PARAMETER :: CHA= 7, CHB= 7      ! GOES-16 ABI 3.9 um
-!INTEGER,  PARAMETER :: CHA= 9, CHB= 9      ! GOES-16 ABI 6.95 um
-!INTEGER,  PARAMETER :: CHA= 13, CHB= 13    ! GOES-16 ABI 10.35 um
-!
-!INTEGER,  PARAMETER :: CHA= 9, CHB= 9      ! SEVIRI 10.8 um
-!
-!INTEGER,  PARAMETER :: CHA= 19, CHB= 19    ! MODIS aqua 0.940 um
-!INTEGER,  PARAMETER :: CHA= 26, CHB= 26    ! MODIS aqua 1.375 um
-!INTEGER,  PARAMETER :: CHA= 27, CHB= 27    ! MODIS aqua 6.715 um
-!INTEGER,  PARAMETER :: CHA= 28, CHB= 28    ! MODIS aqua 7.325 um
-!INTEGER,  PARAMETER :: CHA= 31, CHB= 31    ! MODIS aqua 11.03 um
 !
 INTEGER,  PARAMETER :: CHA= 8, CHB= 8      ! GMI 89 GHz Vertical Polarization
 !
@@ -219,31 +178,17 @@ ALLOCATE(PRESS(N_LAYERS,NXP,NYP),     RVP(N_LAYERS,NXP,NYP),  &
        stat=allocation_status)
 
 if ( allocation_status /= 0 ) then
-  print("(a)"),"Allocation error for 3d arrays, stopping code at line 167."
+  print("(a)"),"Allocation error for 3d arrays, stopping code at line 181."
   stop
 endif
 !############################################################################
 !#                                                                          #
-!#           -- BEGIN LOOP to READ OVER WRF output --                       #
+!#           -- BEGIN LOOP to READ OVER output --                           #
 !#                                                                          #
 !############################################################################
 !============================================================================
-! Read WRF ouput files
+! Read ouput files
 !============================================================================
-!
-!*** Indicate CloudCoeff.bin version number and ADA_Module.f90 solar error.
-!
-!*** rcm02:/home/grasso/rtm/crtm_v2.1.3/REL-2.1.3.ifort/libsrc/ADA_Module.f90
-!*** rcm02:/home/grasso/rtm/crtm_v2.1.3/REL-2.1.3.ifort/fix/CloudCoeff/Little_Endian
-!
-print("(a)")," "
-print("(a)")," "
-!print("(a)"),"Error: IF( RTV%Visible_Flag_true ) THEN; See ADA_Module.f90 line 393'sh"
-print("(a)"),"Fixed: IF( RTV%Solar_Flag_true ) THEN; See ADA_Module.f90 line 393'sh"
-print("(a)"),"Look below to see CloudCoeff RELEASE.VERSION: "
-print("(a)"),"Look in Get_CRTM.f90 to see absolute paths for ADA and CloudCoeff: Line 217'sh."
-print("(a)")," "
-print("(a)")," "
 !
 !*** Calculate the number of files to read.
 ! 
@@ -269,7 +214,7 @@ MAIN: DO ITER = 1, NITER
  WRITE(TITLE6,FMT="(I1)")NT6
  !!!!!!!!!!!!!!!!!!!!!!!!
  !                      !
- ! Read in WRF 3D data  !
+ ! Read in 3D data      !
  !                      !
  !!!!!!!!!!!!!!!!!!!!!!!!
  IRECLEN = 4*NXP*NYP
@@ -369,7 +314,7 @@ MAIN: DO ITER = 1, NITER
  endif
  if ( micro_flag == 0 ) then
   print("(a)")," "
-  print("(a)"),"Setting all condensate stuff to zero."
+  print("(a)"),"Setting all condensate zero."
   print("(a)")," "
   qcloud(:,:,:) = 0.0
   qrain(:,:,:)  = 0.0
@@ -399,9 +344,6 @@ IF(SENSOR_TYPE == "leo")THEN
    SOL_ZEN(:,:) = 30.0 ! Sun is 30 degrees from above you.
    PRINT("(A)")," "
    PRINT("(A)"),"Setting solar zenith to 30 degrees."
-   PRINT("(A)")," "
-   PRINT("(A)")," "
-   PRINT("(A)"),"If Sun down you must change these values."
    PRINT("(A)")," "
    PRINT("(A)")," "
 ENDIF
@@ -474,19 +416,6 @@ ENDIF
  TITLE7="gmi_orbit_window.dat"
  CALL READ_INPUT_2D_DATA(TRIM(PATH),TITLE7,ORBIT_WINDOW,NXP,NYP,IRECLEN)
  !
-!PRINT("(A)")," "
-!PRINT("(A)")," "
-!PRINT("(A)"),"No canopy temp for RAMS 27june05."
-!PRINT("(A)"),"We'll simply set cantmp(i,j)=temp(1,i,j)."
-!PRINT("(A)")," "
-!PRINT("(A)")," "
-
-!DO I = 1, NXP
-!  DO J = 1, NYP
-!    CANTMP(I,J) = TEMP(1,I,J)
-!  ENDDO
-!ENDDO
-
  !
  !*** Read in 2D spectrial emissivity (from Eva Borbas at CIMSS)
  !
@@ -516,8 +445,7 @@ ENDIF
  !*** Read in 2D spectrial MODIS-16-DAY albedo (from Crystal Schaaf at B.U.)
  !
  IF ( SURFACE_ALBEDO == 1 )THEN
-!  TITLE7="M2R_RAW_REFL_1.64.DAT" ! /home/grasso/fanyou_goesr/modis_1.64_albedo
-   TITLE7="M2R_RAW_REFL_2.1.DAT" ! /home/grasso/fanyou_goesr/modis_1.64_albedo
+   TITLE7="M2R_RAW_REFL_2.1.DAT"
    CALL READ_INPUT_2D_DATA(TRIM(PATH),TITLE7,ALBEDO,NXP,NYP,IRECLEN)
  ENDIF
  !
@@ -655,7 +583,6 @@ Atm(1)%Absorber_Units = (/MASS_MIXING_RATIO_UNITS,VOLUME_MIXING_RATIO_UNITS/)
 geo(1)%Year   = Year
 geo(1)%Month  = Month
 geo(1)%Day    = Day
-!CALL rdate_to_jdate(Year,Month,Day,JDAY)  ! jday = 141 of 21 May 2011
 !---------------------------------------------------------------------
 ! Loop through the model horizontal grid points.
 !---------------------------------------------------------------------
@@ -669,9 +596,6 @@ RAD(:,:) = 0.0
 YPOINTS: DO J = 1, NYP
 XPOINTS: DO I = 1, NXP 
   !
-!  IF ( LAND_TYPE == 1 )THEN
-!    Sfc(1)%Land_Type = VEG_TYPE(I,J)
-!  ENDIF
   Sfc(1)%Land_Temperature = CANTMP(I,J)
   Sfc(1)%snow_Temperature = CANTMP(I,J)
   Sfc(1)%ice_Temperature  = CANTMP(I,J)
@@ -723,23 +647,17 @@ XPOINTS: DO I = 1, NXP
     !*** Absolute value of Satellite scan must be less than 80.0.
     !
     if ( sat_scan(i,j) < -75.0 ) then
-         sat_scan(i,j) = -75.0            ! sat_scan can be negative for LEO !!!
+         sat_scan(i,j) = -75.0            ! sat_scan can be negative for LEO
     endif
     !
     !*** Absolute value of Satellite zenith must be less than 80.0.
     !
     if ( sat_zen(i,j) < -75.0 ) then
-         sat_zen(i,j) = -75.0             ! sat_zen can be negative for LEO !!!
+         sat_zen(i,j) = -75.0             ! sat_zen can be negative for LEO
     endif
     !
-!    geo(1)%Sensor_Scan_Angle    = SAT_SCAN(I,J)
-!    geo(1)%Sensor_Zenith_Angle  = SAT_ZEN(I,J)
-!    geo(1)%Sensor_Azimuth_Angle = SAT_AZI(I,J)
-!    geo(1)%Source_Zenith_Angle  = SOL_ZEN(I,J)
-!    geo(1)%Source_Azimuth_Angle = SOL_AZI(I,J)
-    !*
     !*** GMI_GPM settings
-    !* 
+    ! 
     geo(1)%Sensor_Scan_Angle    = 48.5           ! for conical scanning e.g. GMI
     geo(1)%Sensor_Zenith_Angle  = 53.0           ! for conical scanning e.g. GMI
     geo(1)%Sensor_Azimuth_Angle = 90.0           ! Test for GMI
@@ -749,13 +667,6 @@ XPOINTS: DO I = 1, NXP
   ENDIF
   !
   !*** To allow user defined surface emissivity OR albedo values to be used.
-  !
-  !*** Must use opt(1)%Emissivity(1) <---- the value of "1" in Emissivity(1) is
-  !*** because in CRTM_Forward_Module.f90, line 512, "ln" is the loop variable
-  !*** used as the array index for 
-  !*** SfcOptics%Emissivity(1,1) = Options(m)%Emissivity(ln),
-  !*** line 640. Since we force the CRTM to process just one channel,
-  !***  CHA=CHB, thus ln=1 always.
   !
   IF( SURFACE_EMISS == 1 )THEN
      opt(1)%Emissivity(1)  = EMISS(I,J)
@@ -768,18 +679,9 @@ XPOINTS: DO I = 1, NXP
      opt(1)%Emissivity(1)           = 1.0 - ALBEDO(I,J)
   ENDIF
   !
-  !*** Set n_streams to 6, 8, 16, or 32. See CRTM_CloudScatter.f90
-  !*** line 219ish.
-  !
   opt(1)%Use_n_Streams = .FALSE.
-!  opt(1)%Use_n_Streams = .TRUE.
   opt(1)%n_streams =8 
-!  opt(1)%n_streams = 16
-!  opt(1)%n_streams = 32
   !
-  !---------------------------------------------------------------------
-  ! Assign each WRF atmos & cloud ouput to CRTM structure variables
-  !---------------------------------------------------------------------
   DO K = 1, N_LAYERS
     Atm(1)%Pressure(N_LAYERS-k+1)    = PRESS(K,I,J)
     Atm(1)%Temperature(N_LAYERS-k+1) = TEMP(K,I,J)
@@ -852,14 +754,6 @@ MICRO:  DO K = 1, N_LAYERS
     Atm(1)%Cloud(5)%Effective_Radius(N_LAYERS-K+1) = 0.5*DIAG(K,I,J) 
     Atm(1)%Cloud(5)%Water_Content(N_LAYERS-K+1)= 0.001*QGRAUP(K,I,J) &
                                                * DPRESS/g_const 
-    !
-    !*** For M-Y or NSSL microphysics
-    !
-!    IF ( N_CLOUDS == 6 ) THEN
-!      Atm(1)%Cloud(6)%Type = HAIL_CLOUD
-!      Atm(1)%Cloud(6)%Effective_Radius(N_LAYERS-K+1) = 0.5*DIAH(K,I,J)
-!      Atm(1)%Cloud(6)%Water_Content(N_LAYERS-K+1)= 0.001*QHAIL(K,I,J)  &
-!                                                        * DPRESS/g_const
     ENDIF
     !
     !*** To make sure habit sizes exist only where habit mass exists.
@@ -885,19 +779,10 @@ MICRO:  DO K = 1, N_LAYERS
        Atm(1)%Cloud(5)%Water_Content(N_LAYERS-K+1) = 0.0
     ENDIF
     !
-    !*** For M-Y or NSSL microphysics
-    !
-!    IF ( N_CLOUDS == 6 ) THEN
-!      IF(ABS(QHAIL(K,I,J)).LE.1E-8) THEN
-!         Atm(1)%Cloud(6)%Effective_Radius(N_LAYERS-K+1) = 0.0
-!         Atm(1)%Cloud(6)%Water_Content(N_LAYERS-K+1) = 0.0
-!       ENDIF
-!    ENDIF
-    !
 ENDDO MICRO
   ! 
   !*** Interpolate ozone values to model pressure levels.
-  !*** Then invert vertical index: K=1 is ground in WRF; K=1 is TOA in CRTM.
+  !*** Then invert vertical index: K=1 is ground in model; K=1 is TOA in CRTM.
   !
   DO K = 1, N_LAYERS
    KTOP = NKTOP-1
@@ -920,16 +805,12 @@ ENDDO MICRO
   !#                  **** CALL THE CRTM FORWARD MODEL ****                   #
   !#                                                                          #
   !############################################################################
-  !call crtm_atmosphere_Inspect(atm(1))
-  !read(*,*)
   !
   !*** For leo platforms, call crtm if scan angles are less than 50.0 degrees.
   !
   if (sensor_type == "leo") then
    !
    if( (-50.0 < sat_scan(i,j)) .and. (sat_scan(i,j) < 50.0) )then
-!   if( (-30.0 < LAT(i,j)) .and. ( LAT(i,j) < 30.0) )then 
-!   if( ( 210.0 < LON(i,j)) .and. (LON(i,j) < 270.0) )then
    if( orbit_window(i,j) == 1.0 )then 
     Error_Status =   CRTM_Forward( Atm          , &  
                                    Sfc          , &                            
@@ -937,19 +818,15 @@ ENDDO MICRO
                                    ChannelInfo  , & 
                                    RTSolution   , &
                                    Options = opt  )  !For emissivity data
-    m = 1  ! Only one profile
-    l = 1  ! Only one channel
-    !  DO m = 1, N_PROFILES
+    m = 1
+    l = 1
     DO K = 1, N_LAYERS
      OPDEPTH(N_LAYERS-K+1,I,J) = RTSolution(l,m)%Layer_Optical_Depth(K)
     ENDDO
     TB(I,J)  = RTSolution(l,m)%Brightness_Temperature
     RAD(I,J) = RTSolution(l,m)%Radiance
-    !  ENDDO !m
     !
    endif
-!   endif
-!   endif
    endif
    !
   endif
@@ -966,15 +843,13 @@ ENDDO MICRO
                                    RTSolution   , &
                                    Options = opt  )  !For emissivity data
 
-    m = 1  ! Only one profile
-    l = 1  ! Only one channel
-    !  DO m = 1, N_PROFILES
+    m = 1
+    l = 1
     DO K = 1, N_LAYERS
      OPDEPTH(N_LAYERS-K+1,I,J) = RTSolution(l,m)%Layer_Optical_Depth(K)
     ENDDO
     TB(I,J)  = RTSolution(l,m)%Brightness_Temperature
     RAD(I,J) = RTSolution(l,m)%Radiance
-    !  ENDDO !m
     !
    endif
    !
@@ -985,19 +860,6 @@ ENDDO MICRO
                            "Error in CRTM RTM_Forward",Error_Status)  
       STOP
   END IF
-  !============================================================================
-  ! Get OPDEPTH, TB, and RAD from RTSolution structure
-  !============================================================================
-  !
-!  m = 1  ! Only one profile
-!  l = 1  ! Only one channel
-  !  DO m = 1, N_PROFILES
-!  DO K = 1, N_LAYERS
-!   OPDEPTH(N_LAYERS-K+1,I,J) = RTSolution(l,m)%Layer_Optical_Depth(K)
-!  ENDDO
-!  TB(I,J)  = RTSolution(l,m)%Brightness_Temperature
-!  RAD(I,J) = RTSolution(l,m)%Radiance
-!  !  ENDDO !m
   !
 ENDDO XPOINTS
 ENDDO YPOINTS
@@ -1022,65 +884,26 @@ CALL CRTM_Options_Destroy( opt )
 ! Deallocate the arrays
 !-------------------------------------------------------------
 DEALLOCATE(RTSolution, STAT = Allocate_Status)
-
-
-!DEALLOCATE( PRESS,RVP,TEMP )
-!DEALLOCATE( QCLOUD,QICE,QSNOW,QRAIN,QGRAUP )
-!DEALLOCATE( DIAC,DIAI,DIAS,DIAR,DIAG )
-
+!
 !============================================================================
-! Write the results!
+! Write results
 !============================================================================
-!TITLE7="OPDEPTH"//TITLE6//TITLE5//TITLE4//TITLE3//TITLE2//TITLE1
-!PRINT*,"Writing file ",TITLE7
-!OPEN(UNIT=34,FILE=TITLE7,FORM='UNFORMATTED',  &
-!     ACCESS='DIRECT',STATUS="REPLACE",RECL=IRECLEN)
-!IREC = 1
-!DO K = 1, N_LAYERS
-! WRITE(34,REC=IREC)((OPDEPTH(K,I,J),I=1,NXP),J=1,NYP)
-! IREC = IREC + 1
-!ENDDO
-!CLOSE(34)
-
-!DEALLOCATE( OPDEPTH  )
+TITLE7="tb_gmi_89VGhz"
 !
-!TITLE7="tb_tempestd_89GHz_noclouds.dat"
-!TITLE7="tb_tempestd_165GHz_clouds.dat" 
-!TITLE7="tb_tempestd_176GHz_clouds.dat" 
-!TITLE7="tb_tempestd_180GHz_clouds.dat" 
-!TITLE7="tb_tempestd_182GHz_clouds.dat" 
+PRINT("(A)")," "
+PRINT("(A)")," "
+PRINT*,"Writing file ",trim(TITLE7)
+OPEN(UNIT=34,FILE=(TITLE7),FORM='UNFORMATTED',  &
+     ACCESS='DIRECT',STATUS="REPLACE",RECL=IRECLEN)
+WRITE(34,REC=1)((TB(I,J),I=1,NXP),J=1,NYP)
+CLOSE(34)
 !
-!TITLE7="tb_abi_1035_clouds.dat" 
-!
-if ( 1 == 1 ) then
-  !TITLE7="tb_aqua_6715_clouds.dat" 
-  !TITLE7="tb_aqua_7325_clouds.dat" 
-  !TITLE7="tb_aqua_1103_clouds.dat" 
-  !TITLE7="tb_abi_0695_clouds.dat" 
-  !TITLE7="tb_seviri_1080_clouds.dat" 
-  !TITLE7="tb_himawari_1040_clouds.dat"
-  !TITLE7="tb_gmi_89VGhz.dat"
-  TITLE7="tb_gmi_89VGhz"
-  !
-  PRINT("(A)")," "
-  PRINT("(A)")," "
-  PRINT*,"Writing file ",trim(TITLE7)
-  OPEN(UNIT=34,FILE=(TITLE7),FORM='UNFORMATTED',  &
-       ACCESS='DIRECT',STATUS="REPLACE",RECL=IRECLEN)
-  WRITE(34,REC=1)((TB(I,J),I=1,NXP),J=1,NYP)
-  CLOSE(34)
-endif
-
-if ( 1 == 2 ) then
-  !TITLE7="RAD"//TITLE6//TITLE5//TITLE4//TITLE3//TITLE2//TITLE1
-!  TITLE7="rad_aqua_0940_clouds.dat"
-  TITLE7="rad_aqua_1375_clouds.dat"
-  PRINT*,"Writing file ",TITLE7
-  OPEN(UNIT=34,FILE=TITLE7,FORM='UNFORMATTED',  &
-      ACCESS='DIRECT',STATUS='REPLACE',RECL=IRECLEN)
-  WRITE(34,REC=1)((RAD(I,J),I=1,NXP),J=1,NYP)
-  CLOSE(34)
-endif
+TITLE7="rad_aqua_1375_clouds.dat"
+PRINT*,"Writing file ",TITLE7
+OPEN(UNIT=34,FILE=TITLE7,FORM='UNFORMATTED',  &
+    ACCESS='DIRECT',STATUS='REPLACE',RECL=IRECLEN)
+WRITE(34,REC=1)((RAD(I,J),I=1,NXP),J=1,NYP)
+CLOSE(34)
 !
 !============================================================================
 !*** Update time to get next file.
@@ -1090,36 +913,6 @@ TIME1 = TIME1 + DELTA
 ENDDO MAIN
 !
 END PROGRAM Get_CRTM
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!                                                                     !
-!                      yjnoh added                                    !
-! Change day in date from 'normal' (month/day) to julian day          !
-!                                                                     !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!subroutine rdate_to_jdate (year,month,date,jday)
-
-!      implicit none
-
-!      integer :: year,month,date
-!      integer :: iy,jday
-
-!      iy = year - 1900
-!      jday= date                                              &
-!          +min(1,max(0,month-1))*31                           &
-!          +min(1,max(0,month-2))*(28+(1-min(1,mod(iy,4))))    &
-!          +min(1,max(0,month-3))*31                           &
-!          +min(1,max(0,month-4))*30                           &
-!          +min(1,max(0,month-5))*31                           &
-!          +min(1,max(0,month-6))*30                           &
-!          +min(1,max(0,month-7))*31                           &
-!          +min(1,max(0,month-8))*31                           &
-!          +min(1,max(0,month-9))*30                           &
-!          +min(1,max(0,month-10))*31                          &
-!          +min(1,max(0,month-11))*30                          &
-!          +min(1,max(0,month-12))*31
-
-!return
-!end subroutine rdate_to_jdate
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                     !
 !                     READ IN 3D INPUT DATA                           !
@@ -1175,5 +968,3 @@ OPEN(UNIT=29,FILE=PATH//TITLE6,FORM='UNFORMATTED',   &
 CLOSE(29)
 !
 END SUBROUTINE READ_INPUT_2D_DATA
-
-

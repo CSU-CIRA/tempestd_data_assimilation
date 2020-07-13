@@ -1,6 +1,4 @@
 #
-### 31 December 2019
-#
 ### Makefile to compile remap_gmi_to_fv3.f90
 #
 remap_gmi_to_fv3.out: remap_gmi_to_fv3.o
