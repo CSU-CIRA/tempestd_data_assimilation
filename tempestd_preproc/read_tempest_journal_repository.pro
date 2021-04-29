@@ -1,4 +1,4 @@
-pro read_tempest_hdf_v5
+pro read_tempest_journal_repository
 ;
 ;*** Time periods for GSI.
 ;
